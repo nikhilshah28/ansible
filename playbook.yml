@@ -1,0 +1,8 @@
+--- 
+- 
+  sudo: yes
+  hosts: tag_AnsibleType_ansible
+  user: ubuntu
+  roles: 
+    - base
+    - aws_cloudwatch

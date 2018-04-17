@@ -1,0 +1,10 @@
+- name: Installing Debian updates
+  shell: apt-get update -y
+
+- name: Installing base packages
+  apt: name={{ item }} state=installed
+  with_items:
+       - unzip
+       - links
+       - gcc
+
