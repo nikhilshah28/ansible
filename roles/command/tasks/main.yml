@@ -1,5 +1,13 @@
 - name: get list of users
   command: cat /etc/passwd
+  register: get_user
 
 - name: get version of OS running
   command: lsb_release -a
+  register: get_os
+
+- debug:
+    var: get_user
+
+- debug: 
+    var: get_os
