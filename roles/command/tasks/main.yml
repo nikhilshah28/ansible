@@ -1,0 +1,5 @@
+- name: get list of users
+  command: cat /etc/passwd
+
+- name: get version of OS running
+  command: lsb_release -a
