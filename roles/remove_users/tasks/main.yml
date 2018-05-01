@@ -1,0 +1,10 @@
+--- 
+tasks: 
+  - 
+    name: "Removes users from machines"
+    user: 
+      force: true
+      name: "name={{ item.username }}"
+      remove: true
+      state: absent
+      with_items: "{{users}}"
