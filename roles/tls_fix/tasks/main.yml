@@ -1,0 +1,59 @@
+- name: Check if ssl config exist
+  stat: path=/etc/apache2/mods-enabled/ssl.conf
+  register: check_ssl
+
+- name: apache protocol fix
+  lineinfile: 
+    dest: /etc/apache2/mods-enabled/ssl.conf 
+    regexp: '^(.*)SSLProtocol(.*)$' 
+    line: 'SSLProtocol -all +TLSv1.1 +TLSv1.2'
+    backrefs: yes
+  when: check_ssl.stat.exists
+
+- name: apache cipher fix
+  lineinfile: 
+    dest: /etc/apache2/mods-enabled/ssl.conf
+    regexp: '^(.*)SSLCipherSuite(.*)$'                
+    line: 'SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5:!SSLv3:!SSLv2:!TLSv1'
+    backrefs: yes
+  when: check_ssl.stat.exists
+
+- name: Check if php config exist
+  stat: path=/etc/apache2/ssl/phpmyadmin.live.conf
+  register: check_php
+
+- name: phpmyadmin protocol fix
+  lineinfile: 
+    dest: /etc/apache2/ssl/phpmyadmin.live.conf
+    regexp: '^(.*)SSLProtocol(.*)$'             
+    line: 'SSLProtocol -all +TLSv1.1 +TLSv1.2'
+    backrefs: yes
+  when: check_php.stat.exists
+
+- name: phpmyadmin cipher fix
+  lineinfile:
+    dest: /etc/apache2/mods-enabled/ssl.conf
+    regexp: '^(.*)SSLCipherSuite(.*)$'
+    line: 'SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5:!SSLv3:!SSLv2:!TLSv1'
+    backrefs: yes
+  when: check_php.stat.exists
+  notify:
+  - restart apache
+
+- name: Check if postfix config exist
+  stat: path=/etc/postfix/main.cf
+  register: check_postfix
+
+- name: postfix protocol fix
+  blockinfile: 
+    path: /etc/postfix/main.cf
+    block:  | 
+        ## Added by TGIX
+        smtpd_tls_mandatory_protocols = !SSLv2,!SSLv3,!TLSv1
+        smtp_tls_mandatory_protocols  = !SSLv2,!SSLv3,!TLSv1
+        smtpd_tls_protocols           = !SSLv2,!SSLv3,!TLSv1
+        smtp_tls_protocols            = !SSLv2,!SSLv3,!TLSv1
+  when: check_postfix.stat.exists
+  notify:
+  - restart postfix
+  ignore_errors: yes 
